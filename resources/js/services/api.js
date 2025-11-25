@@ -43,6 +43,16 @@ api.interceptors.response.use(
     }
 );
 
+// User API methods
+export const userApi = {
+    /**
+     * Get current authenticated user
+     */
+    getCurrentUser: () => {
+        return api.get('/user');
+    },
+};
+
 // Transaction API methods
 export const transactionApi = {
     /**
