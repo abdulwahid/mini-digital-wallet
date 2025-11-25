@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\Transaction;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class TransactionService
 {
@@ -56,6 +58,59 @@ class TransactionService
     public function getRequiredBalance($amount): float
     {
         return $this->calculateTotalAmount($amount);
+    }
+
+    /**
+     * Perform an atomic transaction transfer with row-level locking.
+     *
+     * @param  User  $sender
+     * @param  int  $receiverId
+     * @param  float|string  $amount
+     * @return Transaction
+     *
+     * @throws \Illuminate\Database\QueryException
+     * @throws \RuntimeException
+     */
+    public function transfer(User $sender, int $receiverId, $amount): Transaction
+    {
+        $amount = (float) $amount;
+        $commission = $this->calculateCommission($amount);
+        $totalAmount = $this->calculateTotalAmount($amount);
+
+        return DB::transaction(function () use ($sender, $receiverId, $amount, $commission, $totalAmount) {
+            // Lock sender row for update to prevent concurrent modifications
+            $lockedSender = User::where('id', $sender->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            // Lock receiver row for update
+            $receiver = User::where('id', $receiverId)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            // Double-check balance after acquiring lock
+            if ((float) $lockedSender->balance < $totalAmount) {
+                throw new \RuntimeException('Insufficient balance for this transaction.');
+            }
+
+            // Update sender balance (subtract amount + commission)
+            $lockedSender->balance = (float) $lockedSender->balance - $totalAmount;
+            $lockedSender->save();
+
+            // Update receiver balance (add amount only, no commission)
+            $receiver->balance = (float) $receiver->balance + $amount;
+            $receiver->save();
+
+            // Create transaction record
+            $transaction = Transaction::create([
+                'sender_id' => $lockedSender->id,
+                'receiver_id' => $receiver->id,
+                'amount' => $amount,
+                'commission_fee' => $commission,
+            ]);
+
+            return $transaction->load(['sender', 'receiver']);
+        });
     }
 }
 
