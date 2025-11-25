@@ -40,10 +40,10 @@
                         <div class="font-bold" :class="getAmountClass(transaction)">
                             <span v-if="isOutgoing(transaction)">-</span>
                             <span v-else>+</span>
-                            ${{ formatCurrency(transaction.amount) }}
+                            {{ formatCurrency(transaction.amount) }}
                         </div>
                         <div v-if="isOutgoing(transaction)" class="text-xs text-gray-500 mt-1">
-                            Fee: ${{ formatCurrency(transaction.commission_fee) }}
+                            Fee: {{ formatCurrency(transaction.commission_fee) }}
                         </div>
                     </div>
                 </div>
@@ -70,6 +70,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { transactionApi } from '../services/api.js';
+import { formatCurrency, formatDate } from '../utils/formatters.js';
 
 const props = defineProps({
     userId: {
@@ -84,24 +85,6 @@ const loadingMore = ref(false);
 const error = ref('');
 const currentPage = ref(1);
 const hasMorePages = ref(false);
-
-const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    }).format(amount);
-};
-
-const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    }).format(date);
-};
 
 const isOutgoing = (transaction) => {
     return transaction.sender_id === props.userId;

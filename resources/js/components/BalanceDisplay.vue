@@ -2,7 +2,7 @@
     <div class="balance-display">
         <h2 class="text-2xl font-bold mb-2">Your Balance</h2>
         <div class="text-4xl font-semibold text-green-600">
-            ${{ formatCurrency(balance) }}
+            {{ formatCurrency(balance) }}
         </div>
         <div v-if="loading" class="text-sm text-gray-500 mt-2 flex items-center gap-2">
             <svg class="animate-spin h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -17,16 +17,10 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { transactionApi } from '../services/api.js';
+import { formatCurrency } from '../utils/formatters.js';
 
 const balance = ref(0);
 const loading = ref(true);
-
-const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    }).format(amount);
-};
 
 const fetchBalance = async () => {
     try {
