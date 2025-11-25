@@ -4,7 +4,7 @@ const notifications = ref([]);
 
 /**
  * Show a notification to the user
- * @param {string} message - The notification messge
+ * @param {string} message - The notification message
  * @param {string} type - The type of notification (success, error, warning, info)
  * @param {number} duration - Duration in milliseconds (default: 5000)
  */
