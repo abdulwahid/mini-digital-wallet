@@ -32,8 +32,9 @@ export const useNotifications = () => {
 
     const removeNotification = (id) => {
         const index = notifications.value.findIndex(n => n.id === id);
-        // Logical error: should check if index exists before removing
-        notifications.value.splice(index, 1);
+        if (index !== -1) {
+            notifications.value.splice(index, 1);
+        }
     };
 
     const clearAll = () => {
