@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\TransactionCompleted;
 use App\Exceptions\InsufficientBalanceException;
 use App\Exceptions\InvalidReceiverException;
 use App\Exceptions\SelfTransferException;
@@ -130,6 +131,17 @@ class TransactionService
                 'amount' => $amount,
                 'commission_fee' => $commission,
             ]);
+
+            // Refresh to get updated balances
+            $lockedSender->refresh();
+            $receiver->refresh();
+
+            // Dispatch broadcast event to both sender and receiver
+            TransactionCompleted::dispatch(
+                $transaction,
+                (float) $lockedSender->balance,
+                (float) $receiver->balance
+            );
 
             return $transaction->load(['sender', 'receiver']);
         });
