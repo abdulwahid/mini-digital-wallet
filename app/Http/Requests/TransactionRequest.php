@@ -33,6 +33,7 @@ class TransactionRequest extends FormRequest
                 'required',
                 'numeric',
                 'min:0.01',
+                'max:999999999.99', // Reasonable maximum limit
             ],
         ];
     }
@@ -51,6 +52,7 @@ class TransactionRequest extends FormRequest
             'amount.required' => 'The amount is required.',
             'amount.numeric' => 'The amount must be a number.',
             'amount.min' => 'The amount must be at least 0.01.',
+            'amount.max' => 'The amount exceeds the maximum allowed limit.',
         ];
     }
 }

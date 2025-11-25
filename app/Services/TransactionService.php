@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Exceptions\InsufficientBalanceException;
+use App\Exceptions\InvalidReceiverException;
+use App\Exceptions\SelfTransferException;
 use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -68,12 +71,30 @@ class TransactionService
      * @param  float|string  $amount
      * @return Transaction
      *
+     * @throws InsufficientBalanceException
+     * @throws InvalidReceiverException
+     * @throws SelfTransferException
      * @throws \Illuminate\Database\QueryException
-     * @throws \RuntimeException
      */
     public function transfer(User $sender, int $receiverId, $amount): Transaction
     {
         $amount = (float) $amount;
+
+        // Validate amount is positive
+        if ($amount <= 0) {
+            throw new \InvalidArgumentException('Transfer amount must be greater than zero.');
+        }
+
+        // Prevent self-transfer
+        if ($sender->id === $receiverId) {
+            throw new SelfTransferException();
+        }
+
+        // Validate receiver exists (before locking)
+        if (! User::where('id', $receiverId)->exists()) {
+            throw new InvalidReceiverException('The specified receiver does not exist.');
+        }
+
         $commission = $this->calculateCommission($amount);
         $totalAmount = $this->calculateTotalAmount($amount);
 
@@ -89,12 +110,13 @@ class TransactionService
                 ->firstOrFail();
 
             // Double-check balance after acquiring lock
-            if ((float) $lockedSender->balance < $totalAmount) {
-                throw new \RuntimeException('Insufficient balance for this transaction.');
+            $currentBalance = (float) $lockedSender->balance;
+            if ($currentBalance < $totalAmount) {
+                throw new InsufficientBalanceException($totalAmount, $currentBalance);
             }
 
             // Update sender balance (subtract amount + commission)
-            $lockedSender->balance = (float) $lockedSender->balance - $totalAmount;
+            $lockedSender->balance = $currentBalance - $totalAmount;
             $lockedSender->save();
 
             // Update receiver balance (add amount only, no commission)
