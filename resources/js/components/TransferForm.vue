@@ -129,7 +129,17 @@ const validateAmount = () => {
         return false;
     }
     
-    // Intentionally missing: maximum amount validation in real-time
+    if (amount > 999999999.99) {
+        errors.value.amount = 'Amount exceeds the maximum allowed limit (999,999,999.99)';
+        return false;
+    }
+    
+    // Validate decimal places (max 2)
+    const decimalPlaces = (amount.toString().split('.')[1] || '').length;
+    if (decimalPlaces > 2) {
+        errors.value.amount = 'Amount can have at most 2 decimal places';
+        return false;
+    }
     
     errors.value.amount = '';
     return true;
