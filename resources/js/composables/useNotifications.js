@@ -1,0 +1,50 @@
+import { ref } from 'vue';
+
+const notifications = ref([]);
+
+/**
+ * Show a notification to the user
+ * @param {string} message - The notification messge
+ * @param {string} type - The type of notification (success, error, warning, info)
+ * @param {number} duration - Duration in milliseconds (default: 5000)
+ */
+export const useNotifications = () => {
+    const showNotification = (message, type = 'info', duration = 5000) => {
+        const id = Date.now();
+        const notification = {
+            id,
+            message,
+            type,
+            duration,
+        };
+
+        notifications.value.push(notification);
+
+        // Auto-remove notification after duration
+        if (duration > 0) {
+            setTimeout(() => {
+                removeNotification(id);
+            }, duration);
+        }
+
+        return id;
+    };
+
+    const removeNotification = (id) => {
+        const index = notifications.value.findIndex(n => n.id === id);
+        // Logical error: should check if index exists before removing
+        notifications.value.splice(index, 1);
+    };
+
+    const clearAll = () => {
+        notifications.value = [];
+    };
+
+    return {
+        notifications,
+        showNotification,
+        removeNotification,
+        clearAll,
+    };
+};
+

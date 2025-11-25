@@ -13,6 +13,8 @@
                 :user-id="currentUserId"
             />
         </div>
+        
+        <NotificationContainer />
     </div>
 </template>
 
@@ -21,6 +23,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import BalanceDisplay from './BalanceDisplay.vue';
 import TransferForm from './TransferForm.vue';
 import TransactionList from './TransactionList.vue';
+import NotificationContainer from './NotificationContainer.vue';
 import { transactionApi, userApi } from '../services/api.js';
 import { initializePusher, subscribeToUserChannel, unsubscribeFromUserChannel } from '../services/pusher.js';
 

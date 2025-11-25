@@ -57,6 +57,9 @@
 <script setup>
 import { ref } from 'vue';
 import { transactionApi } from '../services/api.js';
+import { useNotifications } from '../composables/useNotifications.js';
+
+const { showNotification } = useNotifications();
 
 const form = ref({
     receiver_id: '',
@@ -105,6 +108,7 @@ const handleSubmit = async () => {
         });
 
         success.value = 'Transaction completed successfully!';
+        showNotification('Transaction completed successfully!', 'success');
         
         // Reset form after successful submission
         form.value = {
@@ -136,6 +140,9 @@ const handleSubmit = async () => {
         } else {
             error.value = err.response?.data?.message || 'An error occurred. Please try again.';
         }
+        
+        // Show error notification
+        showNotification(error.value, 'error');
     } finally {
         loading.value = false;
     }
