@@ -112,7 +112,26 @@ const handleSubmit = async () => {
         emit('transaction-completed', response.data);
         
     } catch (err) {
-        error.value = err.response?.data?.message || 'An error occurred';
+        // Enhanced error handling for different error types
+        if (err.response?.status === 422) {
+            // Validation errors from backend
+            const message = err.response?.data?.message;
+            const errors = err.response?.data?.errors;
+            
+            if (errors) {
+                // Handle field-specific validation errors
+                const firstError = Object.values(errors)[0];
+                error.value = Array.isArray(firstError) ? firstError[0] : firstError;
+            } else {
+                error.value = message || 'Validation failed. Please check your input.';
+            }
+        } else if (err.response?.status === 401) {
+            error.value = 'You are not authenticated. Please log in again.';
+        } else if (err.response?.status >= 500) {
+            error.value = 'Server error. Please try again later.';
+        } else {
+            error.value = err.response?.data?.message || 'An error occurred. Please try again.';
+        }
     } finally {
         loading.value = false;
     }
