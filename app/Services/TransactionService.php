@@ -67,6 +67,12 @@ class TransactionService
     /**
      * Perform an atomic transaction transfer with row-level locking.
      *
+     * This method ensures concurrency safety by:
+     * - Using database transactions for atomicity
+     * - Locking user rows with SELECT ... FOR UPDATE to prevent race conditions
+     * - Double-checking balance after acquiring locks
+     * - Rolling back all changes on any failure
+     *
      * @param  User  $sender
      * @param  int  $receiverId
      * @param  float|string  $amount

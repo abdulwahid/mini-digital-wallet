@@ -103,12 +103,10 @@ const initializeRealTimeUpdates = async () => {
         // Handle connection events
         echo.connector.pusher.connection.bind('connected', () => {
             pusherConnected.value = true;
-            console.log('Pusher connected');
         });
 
         echo.connector.pusher.connection.bind('disconnected', () => {
             pusherConnected.value = false;
-            console.log('Pusher disconnected');
         });
 
         echo.connector.pusher.connection.bind('error', (err) => {
