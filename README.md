@@ -4,87 +4,87 @@ A high-performance digital wallet system built with Laravel and Vue.js, featurin
 
 ## Features
 
-- 💰 **Digital Wallet Management**: Send and receive money with real-time balance updates
-- 🔒 **Concurrency-Safe Transactions**: Row-level locking ensures balance consistency under high load
-- ⚡ **Real-Time Updates**: Instant balance and transaction updates via Pusher broadcasting
-- 💳 **Transaction History**: View all incoming and outgoing transactions
-- 📊 **Commission System**: Automatic 1.5% commission on all transfers
-- 🎨 **Modern UI**: Clean, responsive interface built with Vue.js 3 and Tailwind CSS
+The application provides digital wallet management with the ability to send and receive money with real-time balance updates. Transactions are concurrency-safe using row-level locking to ensure balance consistency under high load. The system provides instant balance and transaction updates via Pusher broadcasting. Users can view all incoming and outgoing transactions in their history. The system automatically applies a 1.5% commission on all transfers. The interface is built with Vue.js 3 and Tailwind CSS for a clean, responsive experience.
 
 ## Tech Stack
 
-- **Backend**: Laravel 12
-- **Frontend**: Vue.js 3 (Composition API)
-- **Database**: MySQL/PostgreSQL
-- **Real-Time**: Laravel Broadcasting + Pusher
-- **Authentication**: Laravel Sanctum
+Backend is built with Laravel 12. The frontend uses Vue.js 3 with the Composition API. The database supports both MySQL and PostgreSQL. Real-time features are implemented using Laravel Broadcasting with Pusher. Authentication is handled by Laravel Sanctum.
 
 ## Requirements
 
-- PHP ^8.2
-- Composer
-- Node.js & npm
-- MySQL 8.0+ or PostgreSQL
-- Pusher account (for real-time features)
+You'll need PHP 8.2 or higher, Composer for dependency management, Node.js and npm for frontend assets, and either MySQL 8.0+ or PostgreSQL for the database. A Pusher account is required for real-time features.
 
 ## Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd mini-digital-wallet
-   ```
+Start by cloning the repository and navigating into the project directory:
 
-2. **Install PHP dependencies**
-   ```bash
-   composer install
-   ```
+```bash
+git clone <repository-url>
+cd mini-digital-wallet
+```
 
-3. **Install frontend dependencies**
-   ```bash
-   npm install
-   ```
+Install PHP dependencies using Composer:
 
-4. **Configure environment**
-   ```bash
-   cp .env.example .env
-   php artisan key:generate
-   ```
+```bash
+composer install
+```
 
-5. **Update `.env` file with your configuration:**
-   ```env
-   DB_CONNECTION=mysql
-   DB_HOST=127.0.0.1
-   DB_PORT=3306
-   DB_DATABASE=mini_wallet
-   DB_USERNAME=your_username
-   DB_PASSWORD=your_password
+Install frontend dependencies:
 
-   BROADCAST_CONNECTION=pusher
-   PUSHER_APP_ID=your_pusher_app_id
-   PUSHER_APP_KEY=your_pusher_app_key
-   PUSHER_APP_SECRET=your_pusher_app_secret
-   PUSHER_APP_CLUSTER=mt1
-   PUSHER_HOST=
-   PUSHER_PORT=443
-   PUSHER_SCHEME=https
-   ```
+```bash
+npm install
+```
 
-6. **Run migrations**
-   ```bash
-   php artisan migrate
-   ```
+Configure your environment by copying the example file and generating an application key:
 
-7. **Build frontend assets**
-   ```bash
-   npm run build
-   ```
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-8. **Start the development server**
-   ```bash
-   php artisan serve
-   npm run dev
-   ```
+Update the `.env` file with your configuration:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=mini_wallet
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+
+BROADCAST_CONNECTION=pusher
+PUSHER_APP_ID=your_pusher_app_id
+PUSHER_APP_KEY=your_pusher_app_key
+PUSHER_APP_SECRET=your_pusher_app_secret
+PUSHER_APP_CLUSTER=mt1
+PUSHER_HOST=
+PUSHER_PORT=443
+PUSHER_SCHEME=https
+```
+
+Run the database migrations:
+
+```bash
+php artisan migrate
+```
+
+Build the frontend assets:
+
+```bash
+npm run build
+```
+
+Start the development server. In one terminal, run the Laravel server:
+
+```bash
+php artisan serve
+```
+
+In another terminal, start the Vite dev server:
+
+```bash
+npm run dev
+```
 
 ## API Endpoints
 
@@ -96,8 +96,9 @@ All API endpoints require authentication via Laravel Sanctum.
 
 Returns all transactions (incoming and outgoing) for the authenticated user, along with current balance.
 
-**Query Parameters:**
-- `per_page` (optional): Number of transactions per page (default: 15)
+Query Parameters:
+
+The `per_page` parameter is optional and controls the number of transactions per page. The default is 15.
 
 **Response:**
 ```json
@@ -162,60 +163,35 @@ Creates a new money transfer transaction.
 }
 ```
 
-**Error Responses (422):**
-- Insufficient balance
-- Invalid receiver
-- Self-transfer attempt
-- Validation errors
+Error Responses (422):
+
+The API will return a 422 status code with an error message for insufficient balance, invalid receiver, self-transfer attempts, or validation errors.
 
 ## Real-Time Broadcasting
 
-The application uses Laravel Broadcasting with Pusher to provide real-time updates:
+The application uses Laravel Broadcasting with Pusher to provide real-time updates. The `TransactionCompleted` event is broadcast on private channels named `user.{userId}` for each user. The event name is `transaction.completed`.
 
-- **Event**: `TransactionCompleted`
-- **Channels**: Private channels `user.{userId}` for each user
-- **Event Name**: `transaction.completed`
-
-When a transaction is completed, both sender and receiver receive a broadcast event with:
-- Transaction details
-- Updated balances for both users
+When a transaction is completed, both sender and receiver receive a broadcast event containing the transaction details and updated balances for both users.
 
 ## Database Schema
 
 ### Users Table
-- `id` (primary key)
-- `name`
-- `email` (unique)
-- `password`
-- `balance` (decimal 15,2, default 0)
-- `timestamps`
+
+The users table includes an id as the primary key, name, email which must be unique, password, balance stored as decimal 15,2 with a default of 0, and standard timestamps.
 
 ### Transactions Table
-- `id` (primary key)
-- `sender_id` (foreign key to users)
-- `receiver_id` (foreign key to users)
-- `amount` (decimal 15,2)
-- `commission_fee` (decimal 15,2)
-- `timestamps`
+
+The transactions table has an id as the primary key, sender_id and receiver_id as foreign keys to the users table, amount and commission_fee both stored as decimal 15,2, and standard timestamps.
 
 ## Commission System
 
-- **Commission Rate**: 1.5% of transfer amount
-- **Sender Pays**: Transfer amount + 1.5% commission
-- **Receiver Gets**: Transfer amount only (no commission)
+The commission rate is 1.5% of the transfer amount. The sender pays the transfer amount plus the 1.5% commission, while the receiver gets the transfer amount only with no commission deducted.
 
-Example: Transferring $100.00
-- Sender pays: $101.50 ($100 + $1.50 commission)
-- Receiver gets: $100.00
+For example, when transferring $100.00, the sender pays $101.50 (the $100 transfer plus $1.50 commission), and the receiver gets the full $100.00.
 
 ## Concurrency Safety
 
-The system uses the following mechanisms to ensure balance consistency:
-
-1. **Database Transactions**: All operations wrapped in transactions
-2. **Row-Level Locking**: `SELECT ... FOR UPDATE` on user rows
-3. **Double-Check Pattern**: Balance verified after acquiring locks
-4. **Atomic Operations**: All-or-nothing execution
+The system uses several mechanisms to ensure balance consistency. All operations are wrapped in database transactions. Row-level locking is implemented using `SELECT ... FOR UPDATE` on user rows. The balance is verified after acquiring locks using a double-check pattern. All operations are atomic, meaning they either complete entirely or roll back completely.
 
 This ensures the system can handle hundreds of transfers per second without balance inconsistencies.
 
@@ -227,66 +203,37 @@ Run the test suite:
 php artisan test
 ```
 
-Test coverage includes:
-- Concurrent transaction handling
-- Balance consistency verification
-- Real-time broadcasting
-- Error handling
+Test coverage includes concurrent transaction handling, balance consistency verification, real-time broadcasting, and error handling.
 
 ## Frontend Development
 
 The frontend is built with Vue.js 3 using the Composition API.
 
-**Key Components:**
-- `WalletDashboard.vue`: Main dashboard container
-- `BalanceDisplay.vue`: Shows current balance
-- `TransferForm.vue`: Form for sending money
-- `TransactionList.vue`: Displays transaction history
-- `NotificationContainer.vue`: Shows success/error notifications
+Key components include WalletDashboard.vue which serves as the main dashboard container, BalanceDisplay.vue for showing the current balance, TransferForm.vue for the money transfer form, TransactionList.vue for displaying transaction history, and NotificationContainer.vue for showing success and error notifications.
 
-**Services:**
-- `api.js`: Axios-based API client
-- `pusher.js`: Pusher/Echo integration for real-time updates
-- `formatters.js`: Currency and date formatting utilities
+Services include api.js which provides an Axios-based API client, pusher.js for Pusher/Echo integration with real-time updates, and formatters.js for currency and date formatting utilities.
 
 ## Environment Variables
 
 ### Database
-- `DB_CONNECTION`: Database driver (mysql/pgsql)
-- `DB_HOST`: Database host
-- `DB_PORT`: Database port
-- `DB_DATABASE`: Database name
-- `DB_USERNAME`: Database username
-- `DB_PASSWORD`: Database password
+
+Set `DB_CONNECTION` to your database driver (mysql or pgsql), `DB_HOST` to your database host, `DB_PORT` to the database port, `DB_DATABASE` to your database name, `DB_USERNAME` to your database username, and `DB_PASSWORD` to your database password.
 
 ### Broadcasting
-- `BROADCAST_CONNECTION`: pusher
-- `PUSHER_APP_ID`: Pusher application ID
-- `PUSHER_APP_KEY`: Pusher application key
-- `PUSHER_APP_SECRET`: Pusher application secret
-- `PUSHER_APP_CLUSTER`: Pusher cluster (e.g., mt1)
-- `PUSHER_HOST`: Pusher host (optional)
-- `PUSHER_PORT`: Pusher port (default: 443)
-- `PUSHER_SCHEME`: https
+
+Set `BROADCAST_CONNECTION` to pusher. Configure `PUSHER_APP_ID` with your Pusher application ID, `PUSHER_APP_KEY` with your Pusher application key, `PUSHER_APP_SECRET` with your Pusher application secret, and `PUSHER_APP_CLUSTER` with your Pusher cluster (e.g., mt1). The `PUSHER_HOST` is optional, `PUSHER_PORT` defaults to 443, and `PUSHER_SCHEME` should be set to https.
 
 ### Frontend (Vite)
-- `VITE_PUSHER_APP_KEY`: Pusher key for frontend
-- `VITE_PUSHER_APP_CLUSTER`: Pusher cluster for frontend
+
+For the frontend, set `VITE_PUSHER_APP_KEY` with your Pusher key and `VITE_PUSHER_APP_CLUSTER` with your Pusher cluster.
 
 ## Security
 
-- API authentication via Laravel Sanctum
-- Private broadcasting channels with authorization
-- Input validation on all endpoints
-- SQL injection protection via Eloquent ORM
-- CSRF protection for web routes
+API authentication is handled via Laravel Sanctum. Private broadcasting channels require authorization. All endpoints have input validation. SQL injection is prevented through the use of Eloquent ORM. CSRF protection is enabled for web routes.
 
 ## Performance
 
-- Optimized for high concurrency (hundreds of transfers/second)
-- Row-level locking prevents race conditions
-- Efficient database queries with eager loading
-- Real-time updates via Pusher (no polling)
+The system is optimized for high concurrency and can handle hundreds of transfers per second. Row-level locking prevents race conditions. Database queries are efficient with eager loading. Real-time updates are provided via Pusher, eliminating the need for polling.
 
 ## License
 
