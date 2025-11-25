@@ -1,59 +1,293 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Mini Digital Wallet
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A high-performance digital wallet system built with Laravel and Vue.js, featuring real-time transaction updates via Pusher.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- 💰 **Digital Wallet Management**: Send and receive money with real-time balance updates
+- 🔒 **Concurrency-Safe Transactions**: Row-level locking ensures balance consistency under high load
+- ⚡ **Real-Time Updates**: Instant balance and transaction updates via Pusher broadcasting
+- 💳 **Transaction History**: View all incoming and outgoing transactions
+- 📊 **Commission System**: Automatic 1.5% commission on all transfers
+- 🎨 **Modern UI**: Clean, responsive interface built with Vue.js 3 and Tailwind CSS
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tech Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Backend**: Laravel 12
+- **Frontend**: Vue.js 3 (Composition API)
+- **Database**: MySQL/PostgreSQL
+- **Real-Time**: Laravel Broadcasting + Pusher
+- **Authentication**: Laravel Sanctum
 
-## Learning Laravel
+## Requirements
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- PHP ^8.2
+- Composer
+- Node.js & npm
+- MySQL 8.0+ or PostgreSQL
+- Pusher account (for real-time features)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Installation
 
-## Laravel Sponsors
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd mini-digital-wallet
+   ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+2. **Install PHP dependencies**
+   ```bash
+   composer install
+   ```
 
-### Premium Partners
+3. **Install frontend dependencies**
+   ```bash
+   npm install
+   ```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+4. **Configure environment**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-## Contributing
+5. **Update `.env` file with your configuration:**
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=mini_wallet
+   DB_USERNAME=your_username
+   DB_PASSWORD=your_password
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+   BROADCAST_CONNECTION=pusher
+   PUSHER_APP_ID=your_pusher_app_id
+   PUSHER_APP_KEY=your_pusher_app_key
+   PUSHER_APP_SECRET=your_pusher_app_secret
+   PUSHER_APP_CLUSTER=mt1
+   PUSHER_HOST=
+   PUSHER_PORT=443
+   PUSHER_SCHEME=https
+   ```
 
-## Code of Conduct
+6. **Run migrations**
+   ```bash
+   php artisan migrate
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+7. **Build frontend assets**
+   ```bash
+   npm run build
+   ```
 
-## Security Vulnerabilities
+8. **Start the development server**
+   ```bash
+   php artisan serve
+   npm run dev
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## API Endpoints
+
+All API endpoints require authentication via Laravel Sanctum.
+
+### Get Transactions
+
+**GET** `/api/transactions`
+
+Returns all transactions (incoming and outgoing) for the authenticated user, along with current balance.
+
+**Query Parameters:**
+- `per_page` (optional): Number of transactions per page (default: 15)
+
+**Response:**
+```json
+{
+  "balance": 1000.50,
+  "transactions": {
+    "data": [
+      {
+        "id": 1,
+        "sender_id": 1,
+        "receiver_id": 2,
+        "amount": "100.00",
+        "commission_fee": "1.50",
+        "created_at": "2024-11-25T10:00:00.000000Z",
+        "sender": {
+          "id": 1,
+          "name": "John Doe",
+          "email": "john@example.com"
+        },
+        "receiver": {
+          "id": 2,
+          "name": "Jane Smith",
+          "email": "jane@example.com"
+        }
+      }
+    ],
+    "current_page": 1,
+    "last_page": 1
+  }
+}
+```
+
+### Create Transaction
+
+**POST** `/api/transactions`
+
+Creates a new money transfer transaction.
+
+**Request Body:**
+```json
+{
+  "receiver_id": 2,
+  "amount": 100.00
+}
+```
+
+**Response (201):**
+```json
+{
+  "message": "Transaction completed successfully.",
+  "transaction": {
+    "id": 1,
+    "sender_id": 1,
+    "receiver_id": 2,
+    "amount": "100.00",
+    "commission_fee": "1.50",
+    "created_at": "2024-11-25T10:00:00.000000Z",
+    "sender": {...},
+    "receiver": {...}
+  },
+  "balance": 898.50
+}
+```
+
+**Error Responses (422):**
+- Insufficient balance
+- Invalid receiver
+- Self-transfer attempt
+- Validation errors
+
+## Real-Time Broadcasting
+
+The application uses Laravel Broadcasting with Pusher to provide real-time updates:
+
+- **Event**: `TransactionCompleted`
+- **Channels**: Private channels `user.{userId}` for each user
+- **Event Name**: `transaction.completed`
+
+When a transaction is completed, both sender and receiver receive a broadcast event with:
+- Transaction details
+- Updated balances for both users
+
+## Database Schema
+
+### Users Table
+- `id` (primary key)
+- `name`
+- `email` (unique)
+- `password`
+- `balance` (decimal 15,2, default 0)
+- `timestamps`
+
+### Transactions Table
+- `id` (primary key)
+- `sender_id` (foreign key to users)
+- `receiver_id` (foreign key to users)
+- `amount` (decimal 15,2)
+- `commission_fee` (decimal 15,2)
+- `timestamps`
+
+## Commission System
+
+- **Commission Rate**: 1.5% of transfer amount
+- **Sender Pays**: Transfer amount + 1.5% commission
+- **Receiver Gets**: Transfer amount only (no commission)
+
+Example: Transferring $100.00
+- Sender pays: $101.50 ($100 + $1.50 commission)
+- Receiver gets: $100.00
+
+## Concurrency Safety
+
+The system uses the following mechanisms to ensure balance consistency:
+
+1. **Database Transactions**: All operations wrapped in transactions
+2. **Row-Level Locking**: `SELECT ... FOR UPDATE` on user rows
+3. **Double-Check Pattern**: Balance verified after acquiring locks
+4. **Atomic Operations**: All-or-nothing execution
+
+This ensures the system can handle hundreds of transfers per second without balance inconsistencies.
+
+## Testing
+
+Run the test suite:
+
+```bash
+php artisan test
+```
+
+Test coverage includes:
+- Concurrent transaction handling
+- Balance consistency verification
+- Real-time broadcasting
+- Error handling
+
+## Frontend Development
+
+The frontend is built with Vue.js 3 using the Composition API.
+
+**Key Components:**
+- `WalletDashboard.vue`: Main dashboard container
+- `BalanceDisplay.vue`: Shows current balance
+- `TransferForm.vue`: Form for sending money
+- `TransactionList.vue`: Displays transaction history
+- `NotificationContainer.vue`: Shows success/error notifications
+
+**Services:**
+- `api.js`: Axios-based API client
+- `pusher.js`: Pusher/Echo integration for real-time updates
+- `formatters.js`: Currency and date formatting utilities
+
+## Environment Variables
+
+### Database
+- `DB_CONNECTION`: Database driver (mysql/pgsql)
+- `DB_HOST`: Database host
+- `DB_PORT`: Database port
+- `DB_DATABASE`: Database name
+- `DB_USERNAME`: Database username
+- `DB_PASSWORD`: Database password
+
+### Broadcasting
+- `BROADCAST_CONNECTION`: pusher
+- `PUSHER_APP_ID`: Pusher application ID
+- `PUSHER_APP_KEY`: Pusher application key
+- `PUSHER_APP_SECRET`: Pusher application secret
+- `PUSHER_APP_CLUSTER`: Pusher cluster (e.g., mt1)
+- `PUSHER_HOST`: Pusher host (optional)
+- `PUSHER_PORT`: Pusher port (default: 443)
+- `PUSHER_SCHEME`: https
+
+### Frontend (Vite)
+- `VITE_PUSHER_APP_KEY`: Pusher key for frontend
+- `VITE_PUSHER_APP_CLUSTER`: Pusher cluster for frontend
+
+## Security
+
+- API authentication via Laravel Sanctum
+- Private broadcasting channels with authorization
+- Input validation on all endpoints
+- SQL injection protection via Eloquent ORM
+- CSRF protection for web routes
+
+## Performance
+
+- Optimized for high concurrency (hundreds of transfers/second)
+- Row-level locking prevents race conditions
+- Efficient database queries with eager loading
+- Real-time updates via Pusher (no polling)
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
