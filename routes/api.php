@@ -15,8 +15,15 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
-    // Transaction routes
-    Route::get('/transactions', [TransactionController::class, 'index']);
-    Route::post('/transactions', [TransactionController::class, 'store']);
+    // Transaction routes with rate limiting
+    // GET: 120 requests per minute per user (reading is less resource-intensive)
+    // POST: 60 requests per minute per user (writing is more resource-intensive)
+    Route::middleware('throttle:transactions.view')->group(function () {
+        Route::get('/transactions', [TransactionController::class, 'index']);
+    });
+
+    Route::middleware('throttle:transactions.create')->group(function () {
+        Route::post('/transactions', [TransactionController::class, 'store']);
+    });
 });
 
