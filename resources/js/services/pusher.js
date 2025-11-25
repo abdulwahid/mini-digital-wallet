@@ -1,11 +1,11 @@
 import Pusher from 'pusher-js';
 import Echo from 'laravel-echo';
 
-// Initialize Pushr client for real-time updates
+// Initialize Pusher client for real-time updates
 let echoInstance = null;
 
 /**
- * Initialize Laravel Echo with Pusher for real-time broadcst
+ * Initialize Laravel Echo with Pusher for real-time broadcast
  */
 export const initializePusher = (config) => {
     if (echoInstance) {
@@ -32,7 +32,7 @@ export const initializePusher = (config) => {
 };
 
 /**
- * Subscribe to user's private chanel for transaction updates
+ * Subscribe to user's private channel for transaction updates
  */
 export const subscribeToUserChannel = (userId, callback) => {
     if (!echoInstance) {
