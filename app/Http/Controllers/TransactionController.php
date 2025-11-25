@@ -7,6 +7,7 @@ use App\Exceptions\InvalidReceiverException;
 use App\Exceptions\SelfTransferException;
 use App\Http\Requests\TransactionRequest;
 use App\Models\Transaction;
+use App\Models\User;
 use App\Services\TransactionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,9 +24,6 @@ class TransactionController extends Controller
     public function index(Request $request): JsonResponse
     {
         $user = Auth::user();
-        
-        // Refresh user to get latest balance
-        $user->refresh();
 
         // Get all transactions where user is sender or receiver
         $transactions = Transaction::where('sender_id', $user->id)
@@ -34,8 +32,11 @@ class TransactionController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate($request->get('per_page', 15));
 
+        // Get fresh balance from database (more efficient than refresh on entire model)
+        $balance = (float) User::where('id', $user->id)->value('balance');
+
         return response()->json([
-            'balance' => (float) $user->balance,
+            'balance' => $balance,
             'transactions' => $transactions,
         ]);
     }
@@ -58,13 +59,14 @@ class TransactionController extends Controller
                 $request->validated()['amount']
             );
 
-            // Refresh user to get updated balance
-            $user->refresh();
+            // Transaction already has relationships loaded, get balance from sender
+            // The transaction service returns the transaction with relationships loaded
+            $balance = (float) User::where('id', $user->id)->value('balance');
 
             return response()->json([
                 'message' => 'Transaction completed successfully.',
-                'transaction' => $transaction->load(['sender:id,name,email', 'receiver:id,name,email']),
-                'balance' => (float) $user->balance,
+                'transaction' => $transaction,
+                'balance' => $balance,
             ], 201);
         } catch (InsufficientBalanceException $e) {
             return response()->json([

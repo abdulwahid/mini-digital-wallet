@@ -138,18 +138,21 @@ class TransactionService
                 'commission_fee' => $commission,
             ]);
 
-            // Refresh to get updated balances
-            $lockedSender->refresh();
-            $receiver->refresh();
+            // Calculate updated balances (we already have them from the save operations)
+            $senderNewBalance = (float) $lockedSender->balance;
+            $receiverNewBalance = (float) $receiver->balance;
+
+            // Load relationships once for the return value and event
+            $transaction->load(['sender:id,name,email', 'receiver:id,name,email']);
 
             // Dispatch broadcast event to both sender and receiver
             TransactionCompleted::dispatch(
                 $transaction,
-                (float) $lockedSender->balance,
-                (float) $receiver->balance
+                $senderNewBalance,
+                $receiverNewBalance
             );
 
-            return $transaction->load(['sender', 'receiver']);
+            return $transaction;
         });
     }
 }

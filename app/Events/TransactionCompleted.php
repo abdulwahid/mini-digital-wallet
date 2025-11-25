@@ -21,8 +21,10 @@ class TransactionCompleted implements ShouldBroadcast
         public float $senderBalance,
         public float $receiverBalance
     ) {
-        // Load relationships for broadcasting
-        $this->transaction->load(['sender:id,name,email', 'receiver:id,name,email']);
+        // Load relationships for broadcasting only if not already loaded
+        if (!$this->transaction->relationLoaded('sender') || !$this->transaction->relationLoaded('receiver')) {
+            $this->transaction->load(['sender:id,name,email', 'receiver:id,name,email']);
+        }
     }
 
     /**
