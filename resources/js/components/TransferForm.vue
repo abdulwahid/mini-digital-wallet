@@ -64,18 +64,49 @@ const error = ref('');
 const success = ref('');
 
 const handleSubmit = async () => {
-    // Logical mistake 1: Not clearing previous error/success messages
-    // Logical mistake 2: Not validating form data before submission
+    // Clear previous messages
+    error.value = '';
+    success.value = '';
+    
+    // Validate form data before submission
+    if (!form.value.receiver_id || !form.value.amount) {
+        error.value = 'Please fill in all fields';
+        return;
+    }
+    
+    const receiverId = parseInt(form.value.receiver_id);
+    const amount = parseFloat(form.value.amount);
+    
+    if (isNaN(receiverId) || receiverId <= 0) {
+        error.value = 'Receiver ID must be a valid positive number';
+        return;
+    }
+    
+    if (isNaN(amount) || amount <= 0) {
+        error.value = 'Amount must be a valid positive number';
+        return;
+    }
+    
+    if (amount < 0.01) {
+        error.value = 'Amount must be at least 0.01';
+        return;
+    }
     
     loading.value = true;
     
     try {
         const response = await transactionApi.createTransaction({
-            receiver_id: form.value.receiver_id,
-            amount: form.value.amount,
+            receiver_id: receiverId,
+            amount: amount,
         });
 
         success.value = 'Transaction completed successfully!';
+        
+        // Reset form after successful submission
+        form.value = {
+            receiver_id: '',
+            amount: '',
+        };
         
         // Emit event for parent component to update balance
         emit('transaction-completed', response.data);
