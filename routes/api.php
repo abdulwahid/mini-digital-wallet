@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TransactionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,8 +15,8 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
-    // Transaction routes (to be implemented)
-    // Route::get('/transactions', [TransactionController::class, 'index']);
+    // Transaction routes
+    Route::get('/transactions', [TransactionController::class, 'index']);
     // Route::post('/transactions', [TransactionController::class, 'store']);
 });
 
