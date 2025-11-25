@@ -1,20 +1,25 @@
 <template>
-    <div class="wallet-dashboard container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold mb-8">Digital Wallet</h1>
-        
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <BalanceDisplay ref="balanceDisplayRef" />
-            <TransferForm @transaction-completed="handleTransactionCompleted" />
+    <div class="wallet-dashboard min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div class="container mx-auto px-4 py-8 max-w-7xl">
+            <div class="mb-8">
+                <h1 class="text-4xl font-bold text-gray-900 mb-2">Digital Wallet</h1>
+                <p class="text-gray-600">Manage your transactions and balance</p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <BalanceDisplay ref="balanceDisplayRef" />
+                <TransferForm @transaction-completed="handleTransactionCompleted" />
+            </div>
+            
+            <div class="mt-6">
+                <TransactionList
+                    ref="transactionListRef"
+                    :user-id="currentUserId"
+                />
+            </div>
+            
+            <NotificationContainer />
         </div>
-        
-        <div class="mt-6">
-            <TransactionList
-                ref="transactionListRef"
-                :user-id="currentUserId"
-            />
-        </div>
-        
-        <NotificationContainer />
     </div>
 </template>
 
@@ -152,7 +157,7 @@ onUnmounted(() => {
 
 <style scoped>
 .wallet-dashboard {
-    max-width: 1200px;
+    font-family: var(--font-sans, system-ui, sans-serif);
 }
 </style>
 

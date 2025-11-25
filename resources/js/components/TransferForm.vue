@@ -221,10 +221,31 @@ const emit = defineEmits(['transaction-completed']);
 
 <style scoped>
 .transfer-form {
-    padding: 1.5rem;
+    padding: 2rem;
     background: white;
-    border-radius: 0.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.transfer-form input {
+    transition: all 0.2s ease;
+}
+
+.transfer-form input:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: #3b82f6;
+    border-color: #3b82f6;
+}
+
+.transfer-form button {
+    transition: all 0.2s ease;
+}
+
+.transfer-form button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 </style>
 

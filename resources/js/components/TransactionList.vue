@@ -155,18 +155,29 @@ defineExpose({
 
 <style scoped>
 .transaction-list {
-    padding: 1.5rem;
+    padding: 2rem;
     background: white;
-    border-radius: 0.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .transaction-item {
-    transition: transform 0.2s;
+    transition: all 0.2s ease;
+    border-width: 1px;
 }
 
 .transaction-item:hover {
     transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.transaction-item.bg-red-50 {
+    border-left: 4px solid #ef4444;
+}
+
+.transaction-item.bg-green-50 {
+    border-left: 4px solid #10b981;
 }
 </style>
 
