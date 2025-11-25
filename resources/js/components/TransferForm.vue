@@ -9,10 +9,19 @@
                 <input
                     id="receiver_id"
                     v-model="form.receiver_id"
+                    @blur="validateReceiverId"
+                    @input="clearFieldError('receiver_id')"
                     type="number"
-                    class="w-full px-3 py-2 border rounded-md"
+                    class="w-full px-3 py-2 border rounded-md transition-colors"
+                    :class="{
+                        'border-red-500': errors.receiver_id,
+                        'border-gray-300': !errors.receiver_id
+                    }"
                     placeholder="Enter receiver user ID"
                 />
+                <div v-if="errors.receiver_id" class="mt-1 text-sm text-red-600">
+                    {{ errors.receiver_id }}
+                </div>
             </div>
 
             <div class="mb-4">
@@ -22,12 +31,21 @@
                 <input
                     id="amount"
                     v-model="form.amount"
+                    @blur="validateAmount"
+                    @input="clearFieldError('amount')"
                     type="number"
                     step="0.01"
                     min="0.01"
-                    class="w-full px-3 py-2 border rounded-md"
+                    class="w-full px-3 py-2 border rounded-md transition-colors"
+                    :class="{
+                        'border-red-500': errors.amount,
+                        'border-gray-300': !errors.amount
+                    }"
                     placeholder="Enter amount"
                 />
+                <div v-if="errors.amount" class="mt-1 text-sm text-red-600">
+                    {{ errors.amount }}
+                </div>
             </div>
 
             <div v-if="error" class="mb-4 text-red-600 text-sm">
@@ -40,7 +58,7 @@
 
             <button
                 type="submit"
-                :disabled="loading"
+                :disabled="loading || !isFormValid"
                 class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
                 <svg v-if="loading" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -55,7 +73,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { transactionApi } from '../services/api.js';
 import { useNotifications } from '../composables/useNotifications.js';
 
@@ -69,35 +87,75 @@ const form = ref({
 const loading = ref(false);
 const error = ref('');
 const success = ref('');
+const errors = ref({
+    receiver_id: '',
+    amount: '',
+});
+
+const isFormValid = computed(() => {
+    return !errors.value.receiver_id && !errors.value.amount && form.value.receiver_id && form.value.amount;
+});
+
+const validateReceiverId = () => {
+    if (!form.value.receiver_id) {
+        errors.value.receiver_id = 'Receiver ID is required';
+        return false;
+    }
+    
+    const receiverId = parseInt(form.value.receiver_id);
+    if (isNaN(receiverId) || receiverId <= 0) {
+        errors.value.receiver_id = 'Receiver ID must be a valid positive number';
+        return false;
+    }
+    
+    errors.value.receiver_id = '';
+    return true;
+};
+
+const validateAmount = () => {
+    if (!form.value.amount) {
+        errors.value.amount = 'Amount is required';
+        return false;
+    }
+    
+    const amount = parseFloat(form.value.amount);
+    if (isNaN(amount) || amount <= 0) {
+        errors.value.amount = 'Amount must be a valid positive number';
+        return false;
+    }
+    
+    if (amount < 0.01) {
+        errors.value.amount = 'Amount must be at least 0.01';
+        return false;
+    }
+    
+    // Intentionally missing: maximum amount validation in real-time
+    
+    errors.value.amount = '';
+    return true;
+};
+
+const clearFieldError = (field) => {
+    if (errors.value[field]) {
+        errors.value[field] = '';
+    }
+};
 
 const handleSubmit = async () => {
     // Clear previous messages
     error.value = '';
     success.value = '';
     
-    // Validate form data before submission
-    if (!form.value.receiver_id || !form.value.amount) {
-        error.value = 'Please fill in all fields';
+    // Validate all fields
+    const isReceiverIdValid = validateReceiverId();
+    const isAmountValid = validateAmount();
+    
+    if (!isReceiverIdValid || !isAmountValid) {
         return;
     }
     
     const receiverId = parseInt(form.value.receiver_id);
     const amount = parseFloat(form.value.amount);
-    
-    if (isNaN(receiverId) || receiverId <= 0) {
-        error.value = 'Receiver ID must be a valid positive number';
-        return;
-    }
-    
-    if (isNaN(amount) || amount <= 0) {
-        error.value = 'Amount must be a valid positive number';
-        return;
-    }
-    
-    if (amount < 0.01) {
-        error.value = 'Amount must be at least 0.01';
-        return;
-    }
     
     loading.value = true;
     
