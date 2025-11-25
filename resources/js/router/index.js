@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-// Walet routes configuration
+// Wallet routes configuration
 const routes = [
     {
         path: '/',
@@ -8,7 +8,7 @@ const routes = [
         component: () => import('../components/WalletDashboard.vue'),
     },
     {
-        path: '/transactons',
+        path: '/transactions',
         name: 'transactions',
         component: () => import('../components/TransactionList.vue'),
     },
